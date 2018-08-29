@@ -34,14 +34,29 @@ class ServiceMakeCommand extends Command
         }
     }
 
-    /**
-     * Get the stub file for the generator.
-     *
-     * @return string
-     */
-    protected function getStub()
-    {
-        return app_path('Templates/stubs');
+    protected function isExistBaseService($path = '') {
+
+    }
+
+    protected function isExistBaseRepository($path = '') {
+
+    }
+
+    protected function isExistBaseModel($path = '') {
+
+    }
+
+    protected function makeService() {
+        $this->makeModel();
+        $this->makeRepository();
+    }
+
+    protected function makeRepository(){
+
+    }
+
+    protected function makeModel() {
+
     }
 
     /**
@@ -52,15 +67,15 @@ class ServiceMakeCommand extends Command
     protected function getArguments()
     {
         return [
-            ['name', InputArgument::IS_ARRAY, 'The names of modules will be created.'],
+            ['name', InputArgument::IS_ARRAY, 'The names of services will be created.'],
         ];
     }
 
     protected function getOptions()
     {
         return [
-            ['plain', 'p', InputOption::VALUE_NONE, 'Generate a plain module (without some resources).'],
-            ['force', null, InputOption::VALUE_NONE, 'Force the operation to run when the module already exists.'],
+            ['plain', 'p', InputOption::VALUE_NONE, 'Generate a plain service (without some resources).'],
+            ['force', null, InputOption::VALUE_NONE, 'Force the operation to run when the service already exists.'],
         ];
     }
 }
