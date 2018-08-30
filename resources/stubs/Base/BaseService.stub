@@ -1,0 +1,20 @@
+<?php
+namespace App\Services;
+
+class BaseService
+{
+    protected $repository;
+
+    /**
+     * @param $baseRepository
+     */
+    public function __contruct($baseRepository)
+    {
+        $this->repository = $baseRepository;
+    }
+
+    public function findById($id)
+    {
+        return $this->repository->findById($id);
+    }
+}

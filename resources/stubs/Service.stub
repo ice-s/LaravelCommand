@@ -1,0 +1,26 @@
+<?php
+namespace App\Services\{{Name}};
+
+use App\Services\BaseService;
+
+class {{Name}}Service extends BaseService
+{
+    /**
+     * @var AdminAreaRepositoryInterface
+     */
+    private $adminAreaRepository;
+
+    /**
+     * @var AreaService
+     */
+    private $areaService;
+
+    /**
+     * @param AdminAreaRepositoryInterface $adminAreaRepository
+     */
+    public function __construct(
+        AdminAreaRepositoryInterface $adminAreaRepository
+    ) {
+        $this->areaService = $adminAreaRepository;
+    }
+}

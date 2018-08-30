@@ -1,0 +1,13 @@
+<?php
+
+namespace App\Entities\Repositories;
+
+/**
+ * Class BaseRepository
+ *
+ * @package App\Entities\Repositories
+ */
+abstract class BaseRepository
+{
+
+}
