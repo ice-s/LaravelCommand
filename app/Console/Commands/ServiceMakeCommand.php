@@ -30,32 +30,55 @@ class ServiceMakeCommand extends Command
         $names = $this->argument('name');
 
         foreach ($names as $name) {
-
+            $this->makeService($name);
         }
     }
 
-    protected function isExistBaseService($path = '') {
+    protected function isExistBaseService($path = '')
+    {
+        $path = app_path('/Http/Services');
+        $baseFile = 'BaseService.php';
+        if (!file_exists($path = app_path($path . "/" . $baseFile))) {
+            mkdir($path, 0777, true);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    protected function isExistBaseRepository($path = '')
+    {
 
     }
 
-    protected function isExistBaseRepository($path = '') {
+    protected function isExistBaseModel($path = '')
+    {
 
     }
 
-    protected function isExistBaseModel($path = '') {
+    protected function makeService($name)
+    {
+        if(!$this->isExistBaseService()){
+            /*create base Service*/
+            echo "BaseService not exist";
+        }
+        /*Create service*/
+
+        /*Create Model*/
+        $this->makeModel($name);
+
+        /*Create Repository*/
+        $this->makeRepository($name);
+    }
+
+    protected function makeRepository($name)
+    {
 
     }
 
-    protected function makeService() {
-        $this->makeModel();
-        $this->makeRepository();
-    }
-
-    protected function makeRepository(){
-
-    }
-
-    protected function makeModel() {
+    protected function makeModel($name)
+    {
 
     }
 
