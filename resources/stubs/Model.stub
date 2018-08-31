@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Entities\Models\{{Name}};
+namespace App\Entities{{PackageName}}\Models\{{Name}};
 
-use Illuminate\Database\Eloquent\Model;
+use App\Entities{{PackageName}}\Models\BaseModel;
 
-class {{Name}}Model extends Model
+class {{Name}}Model extends BaseModel
 {
 
 }

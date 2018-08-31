@@ -50,7 +50,7 @@ class CrubGenerator extends Command
     {
         $controllerTemplate = str_replace([
             '{{modelName}}',
-            '{{modelNamePluralLowerCase}}',
+            '{{modelNameFirstLowerCase}}',
             '{{modelNameSingularLowerCase}}'
         ], [
             $name,

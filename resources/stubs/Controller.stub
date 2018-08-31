@@ -9,9 +9,9 @@ class {{modelName}}Controller extends Controller
 {
     public function index()
     {
-        ${{modelNamePluralLowerCase}} = {{modelName}}::latest()->get();
+        ${{modelNameFirstLowerCase}} = {{modelName}}::latest()->get();
 
-        return response()->json(${{modelNamePluralLowerCase}});
+        return response()->json(${{modelNameFirstLowerCase}});
     }
 
     public function store({{modelName}}Request $request)

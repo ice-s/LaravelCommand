@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
+use Illuminate\Support\Facades\Config;
 
 class ServiceMakeCommand extends Command
 {
@@ -16,164 +17,169 @@ class ServiceMakeCommand extends Command
     protected $name = 'service:make';
 
     /**
+     * @var array
+     */
+    protected $config = [];
+
+    /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Create a new module.';
+    protected $description = 'Create a new Service => Repository => Model.\n Example : php artisan service:make Customer Backend';
 
     /**
      * Execute the console command.
      */
     public function handle()
     {
+        $this->config = Config::get('command');
+
         $names = $this->argument('name');
 
-        foreach ($names as $name) {
-            $this->make($name);
-        }
-    }
-
-    protected function isExistBaseService($path = '')
-    {
-        $baseFile = 'BaseService.php';
-        $path = app_path('/Services');
-
-        if (!file_exists(app_path("/Services/{$baseFile}"))) {
-            $this->makeDir($path);
-
-            $template = file_get_contents(resource_path("stubs/Base/BaseService.stub"));
-            file_put_contents($path . "/{$baseFile}", $template);
-
-            return false;
+        if (isset($names[0])) {
+            $package = !empty($names[1]) ? $names[1] : '';
+            $this->make($names[0], $package);
         }
 
-        return true;
     }
 
-    protected function isExistBaseRepository($path = '')
+    protected function isExistBaseService($package = '')
     {
-        $baseFile = 'BaseRepository.php';
-        $path = app_path('/Entities/Repositories');
-
-        if (!file_exists(app_path("/Entities/Repositories/{$baseFile}"))) {
-            $this->makeDir($path);
-
-            $template = file_get_contents(resource_path("stubs/Base/BaseRepository.stub"));
-            file_put_contents($path . "/{$baseFile}", $template);
-
-            return false;
-        }
-
-        return true;
+        return $this->createBase($package, 'Service');
     }
 
-    protected function isExistBaseModel($path = '')
+    protected function isExistBaseRepository($package = '')
     {
-        $baseFile = 'BaseModel.php';
-        $path = app_path('/Entities/Models');
-
-        if (!file_exists(app_path("/Entities/Models/{$baseFile}"))) {
-            $this->makeDir($path);
-
-            $template = file_get_contents(resource_path("stubs/Base/BaseModel.stub"));
-            file_put_contents($path . "/{$baseFile}", $template);
-
-            return false;
-        }
-
-        return true;
+        return $this->createBase($package, 'Repository');
     }
 
-    protected function make($name)
+    protected function isExistBaseModel($package = '')
     {
-        if (!$this->isExistBaseService()) {
-            /*create base Service*/
+        return $this->createBase($package, 'Model');
+    }
+
+    protected function make($name, $package = '')
+    {
+        if (!$this->isExistBaseService($package)) {
             echo "Create new Base Service\n";
         }
-        /*Create service*/
-        $this->makeService($name);
 
-        if (!$this->isExistBaseModel()) {
-            /*create base Service*/
+        if (!$this->isExistBaseModel($package)) {
             echo "Create new Base Model\n";
         }
-        /*Create Model*/
-        $this->makeModel($name);
 
-        if (!$this->isExistBaseRepository()) {
-            /*create base Service*/
+        if (!$this->isExistBaseRepository($package)) {
             echo "Create new Base Repository\n";
         }
+
+        /*Create service*/
+        $this->makeService($name, $package);
+
+        /*Create Model*/
+        $this->makeModel($name, $package);
+
         /*Create Repository*/
-        $this->makeRepository($name);
+        $this->makeRepository($name, $package);
     }
 
-    protected function makeService($name)
+    protected function makeService($name, $package = '')
     {
+        $this->createClass($name, $package, 'Service');
+    }
 
-        $serviceFolder = $name;
-        $serviceClass = "{$name}Service.php";
-        $folderPath = app_path("/Services/{$serviceFolder}");
-        $fileName = app_path("/Services/{$serviceFolder}/{$serviceClass}");
+    protected function makeRepository($name, $package = '')
+    {
+        $this->createClass($name, $package, 'Repository');
+    }
+
+    protected function makeModel($name, $package = '')
+    {
+        $this->createClass($name, $package, 'Model');
+    }
+
+    protected function createBase($package, $type)
+    {
+        $packagePath = '';
+        $packageNameSpace = '';
+
+        if (!empty($package)) {
+            $packagePath = '/' . $package;
+            $packageNameSpace = '\\' . $package;
+        }
+
+        $baseFile = $this->config['BaseFile'][$type]; //PHP File
+
+        if ($type == 'Repository' || $type == 'Model') {
+            $basePath = $this->config['EntityPath'] . "{$packagePath}" . $this->config[$type . 'Path'];
+        } else {
+            $basePath = $this->config[$type . 'Path'] . "{$packagePath}";
+        }
+
+        $baseStub = $this->config['Stubs']['Base' . $type]; // template file
+
+        $path = app_path($basePath);
+        $filePath = app_path($basePath . "{$baseFile}");
+
+        /*get template*/
+        $stubFile = $this->getStub($baseStub);
+
+        if (!file_exists($filePath)) {
+            $this->makeDir($path);
+
+            $template = file_get_contents($stubFile);
+            $template = str_replace(['{{PackageName}}'], [$packageNameSpace], $template);
+
+            file_put_contents($path . "/{$baseFile}", $template);
+
+            return false;
+        }
+
+        return true;
+    }
+
+    public function createClass($name, $package = '', $type)
+    {
+        $packagePath = '';
+        $packageNameSpace = '';
+
+        if (!empty($package)) {
+            $packagePath = '/' . $package;
+            $packageNameSpace = '\\' . $package;
+        }
+        if ($type == "Repository" || $type == "Model") {
+            $basePath = $this->config['EntityPath'] . "{$packagePath}" . $this->config[$type . 'Path'];
+            $stubFileName = "stubs/{$type}.stub"; // template file
+            $class = "{$name}{$type}.php";
+        } else {
+            $basePath = $this->config['ServicePath'] . "{$packagePath}";
+            $stubFileName = "stubs/Service.stub"; // template file
+            $class = "{$name}Service.php";
+        }
+
+        /*get template*/
+        $stubFile = $this->getStub($stubFileName);
+        $folder = $name;
+        $folderPath = app_path("{$basePath}/{$folder}");
+        $fileName = app_path("{$basePath}/{$folder}/{$class}");
 
         if (!file_exists($fileName)) {
             $this->makeDir($folderPath);
-
-            $serviceTemplate = file_get_contents(resource_path("stubs/Service.stub"));
-            $serviceTemplate = str_replace(['{{Name}}'], [$name], $serviceTemplate);
-            file_put_contents($fileName, $serviceTemplate);
+            $template = file_get_contents($stubFile);
+            $template = str_replace(['{{Name}}', '{{NameFirstLowerCase}}', '{{PackageName}}'],
+                [$name, lcfirst($name), $packageNameSpace], $template);
+            file_put_contents($fileName, $template);
 
             return true;
         } else {
-            echo "WARNING : Services is existed\n";
+            echo "WARNING : {$type} is existed\n";
 
             return false;
         }
     }
 
-    protected function makeRepository($name)
-    {
-        $repoFolder = $name;
-        $repoClass = "{$name}Repository.php";
-        $folderPath = app_path("/Entities/Repositories/{$repoFolder}");
-        $fileName = app_path("/Entities/Repositories/{$repoFolder}/{$repoClass}");
-
-        if (!file_exists($fileName)) {
-            $this->makeDir($folderPath);
-
-            $serviceTemplate = file_get_contents(resource_path("stubs/Repository.stub"));
-            $serviceTemplate = str_replace(['{{Name}}'], [$name], $serviceTemplate);
-            file_put_contents($fileName, $serviceTemplate);
-
-            return true;
-        } else {
-            echo "WARNING : Services is existed\n";
-
-            return false;
-        }
-    }
-
-    protected function makeModel($name)
-    {
-        $modelFolder = $name;
-        $modelClass = "{$name}Model.php";
-        $folderPath = app_path("/Entities/Models/{$modelFolder}");
-        $fileName = app_path("/Entities/Models/{$modelFolder}/{$modelClass}");
-
-        if (!file_exists($fileName)) {
-            $this->makeDir($folderPath);
-
-            $serviceTemplate = file_get_contents(resource_path("stubs/Model.stub"));
-            $serviceTemplate = str_replace(['{{Name}}'], [$name], $serviceTemplate);
-            file_put_contents($fileName, $serviceTemplate);
-
-            return true;
-        } else {
-            echo "WARNING : Services is existed\n";
-
-            return false;
-        }
+    protected function getStub($path) {
+        return resource_path($path);
     }
 
     protected function makeDir($folderPath)

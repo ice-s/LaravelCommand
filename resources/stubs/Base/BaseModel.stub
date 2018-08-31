@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Entities\Models;
+namespace App\Entities{{PackageName}}\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * App\Entities\Models\BaseModel
+ * App\Entities{{PackageName}}\Models\BaseModel
  *
  * @mixin \Eloquent|\Illuminate\Database\Eloquent\Builder|Model
  */
@@ -24,5 +24,10 @@ class BaseModel extends Model
     public function getPrimaryKey()
     {
         return $this->primaryKey;
+    }
+
+    public function testing()
+    {
+        return ['status' => true, 'data' => ['item1', 'item2']];
     }
 }

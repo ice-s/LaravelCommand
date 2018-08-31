@@ -1,24 +1,24 @@
 <?php
 
-namespace App\Entities\Repositories\{{Name}};
+namespace App\Entities{{PackageName}}\Repositories\{{Name}};
 
-use App\Entities\Repositories\BaseRepository;
-use App\Entities\Models\{{Name}}\{{Name}}Model;
+use App\Entities{{PackageName}}\Repositories\BaseRepository;
+use App\Entities{{PackageName}}\Models\{{Name}}\{{Name}}Model;
 
 class {{Name}}Repository extends BaseRepository
 {
     /**
-     * @var $model {{Name}}Model
+     * @var {{Name}}Model $model
      */
     protected $model;
 
     /**
      * {{Name}}Repository constructor.
      *
-     * @param {{Name}}Model $obj{{Name}}Model
+     * @param {{Name}}Model ${{NameFirstLowerCase}}Model
      */
-    public function __construct({{Name}}Model $obj{{Name}}Model)
+    public function __construct({{Name}}Model ${{NameFirstLowerCase}}Model)
     {
-        $this->model = $obj{{Name}}Model;
+        parent::__construct(${{NameFirstLowerCase}}Model);
     }
 }

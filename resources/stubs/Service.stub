@@ -1,26 +1,23 @@
 <?php
-namespace App\Services\{{Name}};
+namespace App\Services{{PackageName}}\{{Name}};
 
-use App\Services\BaseService;
+use App\Services{{PackageName}}\BaseService;
+use App\Entities{{PackageName}}\Repositories\{{Name}}\{{Name}}Repository;
 
 class {{Name}}Service extends BaseService
 {
     /**
-     * @var AdminAreaRepositoryInterface
+     * @var {{Name}}Repository $repository
      */
-    private $adminAreaRepository;
+    protected $repository;
 
     /**
-     * @var AreaService
+     * {{Name}}Service constructor.
+     *
+     * @param {{Name}}Repository ${{NameFirstLowerCase}}Repository
      */
-    private $areaService;
-
-    /**
-     * @param AdminAreaRepositoryInterface $adminAreaRepository
-     */
-    public function __construct(
-        AdminAreaRepositoryInterface $adminAreaRepository
-    ) {
-        $this->areaService = $adminAreaRepository;
+    public function __construct({{Name}}Repository ${{NameFirstLowerCase}}Repository)
+    {
+        parent::__construct(${{NameFirstLowerCase}}Repository);
     }
 }
